@@ -1,0 +1,12 @@
+# Engagement data: target traffic, captured bodies, account pointers, findings.
+# Never commit any of this.
+engagements/
+.state/
+.venv/
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm

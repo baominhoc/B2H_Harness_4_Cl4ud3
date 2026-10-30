@@ -1,0 +1,25 @@
+#!/bin/sh
+# bb - harness CLI.
+#
+# Resolves the repo from this script's own location so the whole harness stays
+# one movable directory and `bb` works from a symlink on PATH. -P keeps a
+# module planted in an engagement directory from hijacking an import.
+set -eu
+
+self=$0
+while [ -L "$self" ]; do
+    link=$(readlink "$self")
+    case $link in
+        /*) self=$link ;;
+        *)  self=$(dirname -- "$self")/$link ;;
+    esac
+done
+REPO=$(cd -- "$(dirname -- "$self")/.." && pwd -P)
+
+PYTHONPATH=$REPO${PYTHONPATH:+:$PYTHONPATH}
+export PYTHONPATH
+
+PY=$REPO/.venv/bin/python
+[ -x "$PY" ] || PY=python3
+
+exec "$PY" -P -m bbh.cli "$@"

@@ -1,0 +1,24 @@
+#!/bin/sh
+# bb-guard - PreToolUse scope guard. Reads a hook payload on stdin.
+#
+# Same resolution as bin/bb: Claude Code invokes this by absolute path from
+# settings.json, possibly through a symlink, with an arbitrary cwd.
+set -eu
+
+self=$0
+while [ -L "$self" ]; do
+    link=$(readlink "$self")
+    case $link in
+        /*) self=$link ;;
+        *)  self=$(dirname -- "$self")/$link ;;
+    esac
+done
+REPO=$(cd -- "$(dirname -- "$self")/.." && pwd -P)
+
+PYTHONPATH=$REPO${PYTHONPATH:+:$PYTHONPATH}
+export PYTHONPATH
+
+PY=$REPO/.venv/bin/python
+[ -x "$PY" ] || PY=python3
+
+exec "$PY" -P -m bbh.guard "$@"
